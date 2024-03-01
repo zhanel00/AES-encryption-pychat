@@ -1,6 +1,5 @@
 import socket
 import threading
-from aes_cipher import SimpleCipher
 
 HOST = '127.0.0.1'
 PORT = 65432
@@ -9,7 +8,6 @@ server.bind((HOST, PORT))
 server.listen()
 
 clients = []
-key = 'mysecretkey'
 
 def broadcast(message):
     for client in clients:

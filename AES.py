@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import hashlib
-import codecs
 
 class AES:
     def __init__(self, key_len=256):

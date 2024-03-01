@@ -1,6 +1,5 @@
 import socket
 import threading
-from aes_cipher import SimpleCipher
 from AES import AES
 
 HOST = '127.0.0.1'
