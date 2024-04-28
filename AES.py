@@ -338,13 +338,10 @@ class AES:
 
 
     def generate_key(self, key_size=256):
-        # Generate a random AES key of the specified size.
         if key_size not in [128, 192, 256]:
             raise ValueError("Invalid key size. Must be 128, 192, or 256 bits.")
         n_bytes = key_size // 8
-        # random key generation
         key = os.urandom(n_bytes)
-        # split into 32-bit words (i.e. 4-byte words)
         key = np.frombuffer(key, dtype=np.uint8).reshape((n_bytes // 4, 4))
         return key
     
@@ -355,7 +352,6 @@ class AES:
 
         n_bytes = key_size // 8
 
-        # Generate 2 keys from the password for use as encryption key and HMAC key
 
         key_bytes = hashlib.scrypt(
             password.encode(), salt="salt".encode(), n=2 ** 15, r=8, p=1, maxmem=2 ** 26, dklen=n_bytes * 2
@@ -369,7 +365,6 @@ class AES:
         return key
 
 
-# Key Generation functions
 
     #S-box application for each byte in a word
     def sub_word(self, word):
@@ -387,9 +382,9 @@ class AES:
     def key_expansion(self):
 
         #number of words 
-        Nk = len(self.key) # Number of words in a key (since each word contains 4 bytes we divide to 4)
-        Nr = self.rounds # Number of rounds
-        Nb = 4 # Number of words in a state
+        Nk = len(self.key)
+        Nr = self.rounds
+        Nb = 4
 
         # First key for preround, simply divide the initital key to 4 words
         words = np.asarray([np.zeros(4, dtype="uint8") for _ in range(4 * ( Nr + 1 ))])
@@ -434,7 +429,7 @@ class AES:
         ).reshape(4, 4)
     
     def mixColumns(self, state):
-        # function for operations over a single column 
+        # function for operations over a single column
         def singleCol(col):
             # Rijndael multiplication by 2
             b = (col << 1) ^ (0x11B & -(col >> 7))
@@ -460,12 +455,10 @@ class AES:
         state[:, 1] = singleColStatic(state[:, 1])
         state[:, 2] = singleColStatic(state[:, 2])
         state[:, 3] = singleColStatic(state[:, 3])
-        # print(f'1st: {singleCol(state[:, 0])}\n2nd: {singleColStatic(state[:, 0])}')
         return state
     
     
     def invMixColumns(self, state):
-    # Function for operations over a single column
         def singleColStatic(col):
             col_mixed = [
                 self.mul14[col[0]] ^ self.mul11[col[1]] ^ self.mul13[col[2]] ^ self.mul9[col[3]],
@@ -485,12 +478,10 @@ class AES:
     def encrypt(self, plaintext):
         assert len(plaintext) == self.block_size, "Plaintext must be 128 bits."
 
-        # Create the state
         state = (
             np.frombuffer(plaintext, dtype=np.uint8).reshape((4, 4), order="F").copy()
         )
 
-        # AddRoundKey for initial round
         state = self.addRoundKey(state=state, key=self.round_keys[0])
 
         for i in range(1, self.rounds):
@@ -563,13 +554,3 @@ class AES:
         unpadded_decrypted_text = self.unpad(decrypted_text)  # Assuming 'unpad' is a function you have for PKCS7
 
         return unpadded_decrypted_text.decode('utf-8')
-
-# aes = AES("erdautt", 128)
-# encrypted_text = aes.encrypt_text("Ubeite menya")
-# print("Encrypted:", encrypted_text)
-# aes2 = AES("erdautt", 128)
-# decrypted_text = aes2.decrypt_text(encrypted_text)
-# print("Decrypted:", decrypted_text)
-
-# print(aes.key)
-# print(aes2.key)
