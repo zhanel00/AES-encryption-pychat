@@ -87,3 +87,4 @@ def sha256(message):
 message = b'hello'
 hashed_message = sha256(message)
 print(hashed_message.hex())
+print(len(hashed_message))
